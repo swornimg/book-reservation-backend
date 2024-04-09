@@ -28,7 +28,8 @@ class User(db.Model, TimestampMixin):
 
     id = Column(Integer, primary_key=True)
     email = Column(String(128), unique=True, nullable=False)
-    full_name = Column(String(128), nullable=False)
+    first_name = Column(String(128), nullable=True) 
+    last_name = Column(String(128), nullable=True)
     password_hash = Column(String(128), nullable=False)
     is_admin = Column(Boolean(), default=False, nullable=False)
     active = Column(Boolean(), default=True, nullable=False)
@@ -97,7 +98,7 @@ class BookCopy(db.Model, TimestampMixin):
 
     id = Column(Integer, primary_key=True)
     book_id = Column(Integer, ForeignKey('book.id'))
-    format = Column(String(50), nullable=False)  # e.g. hardcover, paperback, etc.
+    book_type = Column(String(50), nullable=False)  # e.g. hardcover, paperback, etc.
     edition = Column(String(50), nullable=True)
     condition = Column(String(50), nullable=True)
     price = Column(Numeric(10, 2), nullable=True)

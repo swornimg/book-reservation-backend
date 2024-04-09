@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   web:
-    build: ./services/web
+    build:
+      context: ./services/web
+      dockerfile: Dockerfile
     command: python manage.py run -h 0.0.0.0
     volumes:
       - ./services/web/:/usr/src/app/
@@ -12,11 +14,11 @@ services:
       - ./.env.dev
 
   db:
-    image: mysql:8.0
+    image: mysql:latest
     volumes:
       - mysql_data:/var/lib/mysql
     env_file:
       - ./.env.db
 
 volumes:
-  mysql_data: 
+  mysql_data:

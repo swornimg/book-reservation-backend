@@ -8,28 +8,27 @@ from flask import (
 )
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
+from sqlalchemy import text
+from flask_migrate import Migrate
+
 
 
 app = Flask(__name__)
 app.config.from_object("project.config.Config")
 db = SQLAlchemy(app)
 
+migrate = Migrate(app, db)
 
-class User(db.Model):
-
-    __tablename__ = "users"
-
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(128), unique=True, nullable=False)
-    active = db.Column(db.Boolean(), default=True, nullable=False)
-
-    def __init__(self, email):
-        self.email = email
+from . import controllers
 
 
 @app.route("/")
 def home():
-    return jsonify(hallo="Hallo...")
+    try:
+        db.session.execute(text('SELECT 1'))
+        return 'Database is connected!'
+    except Exception as e:
+        return f'Database connection error: {str(e)}'
 
 @app.route("/static/<path:filename>")
 def staticfiles(filename):

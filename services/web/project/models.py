@@ -1,3 +1,5 @@
+from . import db
+import re
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import (
     Boolean,
@@ -14,8 +16,6 @@ from sqlalchemy.orm import relationship
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 
-from . import db
-import re
 
 
 class TimestampMixin:
@@ -24,18 +24,20 @@ class TimestampMixin:
 
 
 class User(db.Model, TimestampMixin):
-    __tablename__ = "users"
+    __tablename__ = "user"
 
     id = Column(Integer, primary_key=True)
     email = Column(String(128), unique=True, nullable=False)
     first_name = Column(String(128), nullable=True) 
     last_name = Column(String(128), nullable=True)
-    password_hash = Column(String(128), nullable=False)
+    password_hash = Column(String(255), nullable=False)
     is_admin = Column(Boolean(), default=False, nullable=False)
     active = Column(Boolean(), default=True, nullable=False)
+    profile = relationship("Profile", back_populates="user")
 
-    def __init__(self, email, full_name, password, is_admin=False, active=True):
-        self.full_name = full_name
+    def __init__(self, email, first_name, last_name, password, is_admin=False, active=True):
+        self.first_name = first_name
+        self.last_name = last_name
         self.email = self.validate_and_set_email(email)
         self.password_hash = self.hash_password(password)
         self.is_admin = is_admin
@@ -74,7 +76,7 @@ class Genre(db.Model, TimestampMixin): #category
     __tablename__ = 'genre'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String, nullable=False)
+    name = Column(String(255), nullable=False)
 
 
 class Book(db.Model, TimestampMixin):
@@ -122,7 +124,7 @@ class Review(db.Model, TimestampMixin):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'))
     book_id = Column(Integer, ForeignKey('book.id'))
-    review_text = Column(String, nullable=False)
+    review_text = Column(String(255), nullable=False)
 
 
 class Bookmark(db.Model, TimestampMixin):

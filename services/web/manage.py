@@ -1,7 +1,8 @@
 # This is for CLI tools configurations 
 from flask.cli import FlaskGroup
-from project import app, db
+# from project import app, db
 
+from project import app
 
 cli = FlaskGroup(app)
 

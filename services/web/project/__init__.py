@@ -1,15 +1,11 @@
 
 import os
-from flask import (
-    Flask, 
-    jsonify, 
-    send_from_directory, 
-    request
-)
+from flask import Flask, jsonify, send_from_directory, request
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from sqlalchemy import text
 from flask_migrate import Migrate
+import jwt
 
 
 

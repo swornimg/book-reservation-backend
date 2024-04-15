@@ -1,6 +1,6 @@
-
 import os
 from flask import Flask, jsonify, send_from_directory, request
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from sqlalchemy import text
@@ -10,6 +10,7 @@ import jwt
 
 
 app = Flask(__name__)
+CORS(app)
 app.config.from_object("project.config.Config")
 db = SQLAlchemy(app)
 

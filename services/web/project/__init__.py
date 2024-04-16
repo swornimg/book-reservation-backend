@@ -1,3 +1,4 @@
+import logging
 import os
 from flask import Flask, jsonify, send_from_directory, request
 from flask_cors import CORS
@@ -10,7 +11,18 @@ import jwt
 
 
 app = Flask(__name__)
+
+# Enable CORS
 CORS(app)
+
+# Logging
+app.logger.setLevel(logging.INFO)
+handler = logging.FileHandler("app.log")
+formatter = logging.Formatter('%(asctime)s - %(message)s')  # Include the date in the log messages
+handler.setFormatter(formatter)  # Set the formatter for the handler
+app.logger.addHandler(handler)
+
+# Load configuration
 app.config.from_object("project.config.Config")
 db = SQLAlchemy(app)
 
@@ -25,6 +37,7 @@ def home():
         db.session.execute(text('SELECT 1'))
         return 'Database is connected!'
     except Exception as e:
+        app.logger.error(f'Database connection error: {str(e)}')
         return f'Database connection error: {str(e)}'
 
 @app.route("/static/<path:filename>")

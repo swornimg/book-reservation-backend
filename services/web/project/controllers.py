@@ -6,13 +6,14 @@ from functools import wraps
 
 from . import app, db
 from .utils import handle_file_upload
-from .models import User, Book, Genre
+from .models import User, Book, Genre, Profile
 from .serializers import UserRegistrationSerializer
 
 
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        # 29cebd152c490bc1ef6e401821
         token = None
         # jwt is passed in the request header
         if 'x-access-token' in request.headers:
@@ -27,7 +28,8 @@ def token_required(f):
             current_user = User.query\
                 .filter_by(email = data['public_id'])\
                 .first()
-        except:
+        except Exception as e:
+            app.logger.error(f'token_required view: {str(e)}')
             return jsonify({
                 'message' : 'Token is invalid !!'
             }), 401
@@ -70,13 +72,14 @@ def signup():
         return make_response(jsonify({'message': 'User created successfully!'}), 201)
     
     except Exception as e:
-        # TODO: Log the error
+        app.logger.error(f'signup view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
 
 
 @app.route('/login', methods=['POST'])
 def login():
     try:
+        app.logger.info('login view callled...')
         auth = request.form
 
         if not auth or not auth.get('email') or not auth.get('password'):
@@ -109,7 +112,75 @@ def login():
             {'WWW-Authenticate' : 'Basic realm ="Wrong Password !!"'}
         )
     except Exception as e:
-        # TODO: Log the error
+        app.logger.error(f'login view: {str(e)}')   
+        return make_response(jsonify({'message': 'Something went wrong!'}), 500)
+
+
+@app.route('/profile/<int:user_id>', methods=['GET'])
+def get_profile(user_id):
+    try:
+        user = User.query.get(user_id)
+        if not user:
+            return make_response(jsonify({'message': 'User not found!'}), 404)
+
+        # Check if the profile exists, assuming a one-to-one relationship managed correctly
+        if not user.profile:
+            return make_response(jsonify({'message': 'Profile not found for this user!'}), 404)
+
+        # Extract profile data
+        profile_data = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'address': user.profile[0].address,  # Ensure user.profile is not a list
+            'cover_image': user.profile[0].cover_image,
+            'mobile_number': user.profile[0].mobile_number
+        }
+
+        return make_response(jsonify(profile_data), 200)
+
+    except Exception as e:
+        app.logger.error(f'get_profile view: {str(e)}')
+        return make_response(jsonify({'message': 'Something went wrong!'}), 500)
+
+
+@app.route('/profile/update/<int:user_id>', methods=['PUT'])
+@token_required
+def update_profile(current_user, user_id):
+    try:
+        data = request.form
+
+        # Retrieve the user
+        user = User.query.filter_by(id=user_id).first()
+        if not user:
+            return make_response(jsonify({'message': 'User not found!'}), 404)
+
+        # Retrieve or create the user's profile
+        if not user.profile:
+            profile = Profile(user_id=user.id)
+            db.session.add(profile)
+        else:
+            profile = user.profile
+
+        # Update the fields if provided in the request
+        if 'first_name' in data:
+            user.first_name = data['first_name']  # Assuming user has first_name
+        if 'last_name' in data:
+            user.last_name = data['last_name']  # Assuming user has last_name
+        if 'address' in data:
+            profile.address = data['address']
+        if 'cover_image' in data:
+            profile.cover_image = data['cover_image']
+        if 'mobile_number' in data:
+            profile.mobile_number = data['mobile_number']
+
+        # Commit the changes to the database
+        db.session.commit()
+
+        return make_response(jsonify({'message': 'Profile updated successfully!'}), 200)
+
+    except Exception as e:
+        app.logger.error(f'update_profile view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
     
 
@@ -141,7 +212,7 @@ def create_book(current_user):
         db.session.commit()
         return make_response(jsonify({'message': 'Book created successfully!'}), 201)
     except Exception as e:
-        print(e)
+        app.logger.error(f'create_book view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
 
 
@@ -169,7 +240,7 @@ def get_all_books(current_user):
             book_list.append(book_data)
         return jsonify(book_list)
     except Exception as e:
-        # TODO: Log the error
+        app.logger.error(f'get_all_books view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
 
 
@@ -196,7 +267,7 @@ def get_book(current_user, book_id):
         }
         return jsonify(book_data)
     except Exception as e:
-        # TODO: Log the error
+        app.logger.error(f'get_book view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
 
 
@@ -230,8 +301,7 @@ def update_book(current_user, book_id):
         return make_response(jsonify({'message': 'Book updated successfully!'}), 200)
     
     except Exception as e:
-        print(e)
-        # TODO: Log the error
+        app.logger.error(f'update_book view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
 
 
@@ -247,7 +317,7 @@ def delete_book(current_user, book_id):
         db.session.commit()
         return make_response(jsonify({'message': 'Book deleted successfully!'}), 200)
     except Exception as e:
-        # TODO: Log the error
+        app.logger.error(f'delete_book view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
     
 
@@ -266,7 +336,7 @@ def create_genre(current_user):
         db.session.commit()
         return make_response(jsonify({'message': 'Genre created successfully!'}), 201)
     except Exception as e:
-        # TODO: Log the error
+        app.logger.error(f'create_genre view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
 
 
@@ -285,7 +355,7 @@ def get_all_genres(current_user):
             genre_list.append(genre_data)
         return jsonify(genre_list)
     except Exception as e:
-        # TODO: Log the error
+        app.logger.error(f'get_all_genres view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
 
 
@@ -303,7 +373,7 @@ def get_genre(current_user, genre_id):
         }
         return jsonify(genre_data)
     except Exception as e:
-        # TODO: Log the error
+        app.logger.error(f'get_genre view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
 
 
@@ -319,8 +389,9 @@ def update_genre(current_user, genre_id):
         genre.name = data.get('name')
         db.session.commit()
         return make_response(jsonify({'message': 'Genre updated successfully!'}), 200)
+    
     except Exception as e:
-        # TODO: Log the error
+        app.logger.error(f'update_genre view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
 
 
@@ -335,8 +406,9 @@ def delete_genre(current_user, genre_id):
         db.session.delete(genre)
         db.session.commit()
         return make_response(jsonify({'message': 'Genre deleted successfully!'}), 200)
+    
     except Exception as e:
-        # TODO: Log the error
+        app.logger.error(f'delete_genre view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
     
     

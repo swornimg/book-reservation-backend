@@ -5,7 +5,7 @@ import jwt
 from functools import wraps
 
 from . import app, db
-from .models import User
+from .models import User, Profile
 from .serializers import UserRegistrationSerializer
 
 
@@ -110,5 +110,71 @@ def login():
     except Exception as e:
         # TODO: Log the error
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
-    
-    
+
+
+@app.route('/profile/<int:user_id>', methods=['GET'])
+def get_profile(user_id):
+    try:
+        user = User.query.get(user_id)
+        if not user:
+            return make_response(jsonify({'message': 'User not found!'}), 404)
+
+        # Check if the profile exists, assuming a one-to-one relationship managed correctly
+        if not user.profile:
+            return make_response(jsonify({'message': 'Profile not found for this user!'}), 404)
+
+        # Extract profile data
+        profile_data = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'address': user.profile[0].address,  # Ensure user.profile is not a list
+            'cover_image': user.profile[0].cover_image,
+            'mobile_number': user.profile[0].mobile_number
+        }
+
+        return make_response(jsonify(profile_data), 200)
+
+    except Exception as e:
+        print(e)
+        return make_response(jsonify({'message': 'Something went wrong!'}), 500)
+
+
+@app.route('/profile/update/<int:user_id>', methods=['PUT'])
+@token_required
+def update_profile(current_user, user_id):
+    try:
+        data = request.form
+
+        # Retrieve the user
+        user = User.query.filter_by(id=user_id).first()
+        if not user:
+            return make_response(jsonify({'message': 'User not found!'}), 404)
+
+        # Retrieve or create the user's profile
+        if not user.profile:
+            profile = Profile(user_id=user.id)
+            db.session.add(profile)
+        else:
+            profile = user.profile
+
+        # Update the fields if provided in the request
+        if 'first_name' in data:
+            user.first_name = data['first_name']  # Assuming user has first_name
+        if 'last_name' in data:
+            user.last_name = data['last_name']  # Assuming user has last_name
+        if 'address' in data:
+            profile.address = data['address']
+        if 'cover_image' in data:
+            profile.cover_image = data['cover_image']
+        if 'mobile_number' in data:
+            profile.mobile_number = data['mobile_number']
+
+        # Commit the changes to the database
+        db.session.commit()
+
+        return make_response(jsonify({'message': 'Profile updated successfully!'}), 200)
+
+    except Exception as e:
+        print(e)
+        return make_response(jsonify({'message': 'Something went wrong!'}), 500)

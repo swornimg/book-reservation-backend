@@ -12,6 +12,7 @@ from .serializers import UserRegistrationSerializer
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        # 29cebd152c490bc1ef6e401821
         token = None
         # jwt is passed in the request header
         if 'x-access-token' in request.headers:
@@ -26,7 +27,8 @@ def token_required(f):
             current_user = User.query\
                 .filter_by(email = data['public_id'])\
                 .first()
-        except:
+        except Exception as e:
+            app.logger.error(f'token_required view: {str(e)}')
             return jsonify({
                 'message' : 'Token is invalid !!'
             }), 401
@@ -69,13 +71,14 @@ def signup():
         return make_response(jsonify({'message': 'User created successfully!'}), 201)
     
     except Exception as e:
-        # TODO: Log the error
+        app.logger.error(f'signup view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
 
 
 @app.route('/login', methods=['POST'])
 def login():
     try:
+        app.logger.info('login view callled...')
         auth = request.form
 
         if not auth or not auth.get('email') or not auth.get('password'):
@@ -108,7 +111,7 @@ def login():
             {'WWW-Authenticate' : 'Basic realm ="Wrong Password !!"'}
         )
     except Exception as e:
-        # TODO: Log the error
+        app.logger.error(f'login view: {str(e)}')   
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
 
 

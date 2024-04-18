@@ -6,8 +6,38 @@ on:
     branches: [develop]
 
 jobs:
-  # TODO: add job for testing
+  testing:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_DATABASE: test_db
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+          MYSQL_ROOT_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      
+      - name: Build the Docker Compose stack
+        run: docker-compose up -d
+        
+      - name: Run tests
+        run: docker-compose run web pytest
+
+      - name: Shutdown Docker Compose stack
+        run: docker-compose down
+
   deploy:
+    needs: testing
     runs-on: ubuntu-latest
     steps:
     - name: Check out code

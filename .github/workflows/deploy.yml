@@ -6,6 +6,7 @@ on:
     branches: [develop]
 
 jobs:
+  # TODO: add job for testing
   deploy:
     runs-on: ubuntu-latest
     steps:

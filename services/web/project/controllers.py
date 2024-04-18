@@ -411,5 +411,36 @@ def delete_genre(current_user, genre_id):
     except Exception as e:
         app.logger.error(f'delete_genre view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
-    
+
+
+@app.route('/search-books', methods=['GET'])
+@token_required
+def search_books(current_user):
+    try:
+        search_keyword = request.args.get('keyword')
+        books = Book.query.filter(
+            (Book.title.ilike(f'%{search_keyword}%')) |
+            (Book.isbn.ilike(f'%{search_keyword}%')) |
+            (Book.authors.ilike(f'%{search_keyword}%'))
+        ).all()
+        book_list = []
+        for book in books:
+            book_data = {
+                'id': book.id,
+                'isbn': book.isbn,
+                'title': book.title,
+                'authors': book.authors,
+                'publisher': book.publisher,
+                'publication_date': book.publication_date,
+                'description': book.description,
+                'language': book.language,
+                'num_pages': book.num_pages,
+                'cover_image': book.cover_image,
+                'genre_id': book.genre_id
+            }
+            book_list.append(book_data)
+        return jsonify(book_list)
+    except Exception as e:
+        app.logger.error(f'search_books view: {str(e)}')
+        return make_response(jsonify({'message': 'Something went wrong!'}), 500)
     

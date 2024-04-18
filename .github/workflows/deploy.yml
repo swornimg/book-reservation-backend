@@ -1,10 +1,9 @@
 name: Deploy to DigitalOcean
 
 on:
-  on:
-    push:
-      branches:
-        - deploy_configuration
+  push:
+    branches:
+      - deploy_configuration
 
     # pull_request:
     #   types: [closed]

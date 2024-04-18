@@ -40,7 +40,7 @@ def token_required(f):
     return decorated
 
 
-@app.route('/signup', methods=['POST'])
+@app.route('/register', methods=['POST'])
 def signup():
     try:
         serializer = UserRegistrationSerializer(request.form)

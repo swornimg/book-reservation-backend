@@ -1,9 +1,14 @@
 name: Deploy to DigitalOcean
 
 on:
-  pull_request:
-    types: [closed]
-    branches: [develop]
+  on:
+    push:
+      branches:
+        - deploy_configuration
+
+    # pull_request:
+    #   types: [closed]
+    #   branches: [deploy_configuration]
 
 jobs:
   # TODO: add job for testing
@@ -22,4 +27,4 @@ jobs:
 
     - name: Deploy to DigitalOcean
       run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'bash -s' < /book-reservation-backend/scripts/deploy.sh
+        ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'bash -s' < scripts/deploy.sh

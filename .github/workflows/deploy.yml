@@ -21,4 +21,4 @@ jobs:
 
     - name: Deploy to DigitalOcean
       run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'bash -s' < /book-reservation-backend/scripts/deploy.sh
+        ssh -i ~/.ssh/id_rsa ${{ secrets.USERNAME }}@${{ secrets.HOST }} 'bash -s' < scripts/deploy.sh

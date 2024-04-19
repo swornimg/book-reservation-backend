@@ -26,7 +26,18 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-      
+
+      - name: Set up environment file
+        run: |
+          echo "FLASK_APP=${{ secrets.FLASK_APP }}" >> .env.prod
+          echo "FLASK_DEBUG=${{ secrets.FLASK_DEBUG }}" >> .env.prod
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.prod
+          echo "SQL_HOST=${{ secrets.SQL_HOST }}" >> .env.prod
+          echo "SQL_PORT=${{ secrets.SQL_PORT }}" >> .env.prod
+          echo "DATABASE=${{ secrets.DATABASE }}" >> .env.prod
+          echo "APP_FOLDER=${{ secrets.APP_FOLDER }}" >> .env.prod
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env.prod
+
       - name: Build the Docker Compose stack
         run: docker-compose -f docker-compose.prod.yml up --build -d
         

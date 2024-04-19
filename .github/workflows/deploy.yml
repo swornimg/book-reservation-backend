@@ -46,6 +46,9 @@ jobs:
 
       - name: Build the Docker Compose stack
         run: docker-compose -f docker-compose.prod.yml up --build -d
+
+      - name: Wait for the services to start
+        run: sleep 50
         
       - name: Run tests
         run: docker-compose -f docker-compose.prod.yml run web pytest

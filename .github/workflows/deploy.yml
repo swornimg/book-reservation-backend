@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:latest
         env:
           MYSQL_DATABASE: ${{ secrets.DATABASE }}
           MYSQL_USER: ${{ secrets.MYSQL_USER }}

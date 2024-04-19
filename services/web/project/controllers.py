@@ -444,3 +444,8 @@ def search_books(current_user):
         app.logger.error(f'search_books view: {str(e)}')
         return make_response(jsonify({'message': 'Something went wrong!'}), 500)
     
+
+@app.route("/error_route")
+def error():
+    1/0  # raises an error
+    return "<p>Hello, World!</p>"

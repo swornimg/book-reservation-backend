@@ -65,6 +65,9 @@ COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install --no-cache /wheels/*
 
+# Install pytest
+RUN pip install pytest
+
 # copy entrypoint-prod.sh
 COPY ./entrypoint.sh $APP_HOME
 

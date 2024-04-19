@@ -12,10 +12,10 @@ jobs:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: user
-          MYSQL_PASSWORD: password
-          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: ${{ secrets.DATABASE }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
         ports:
           - 3306:3306
         options: >-
@@ -37,7 +37,7 @@ jobs:
           echo "DATABASE=${{ secrets.DATABASE }}" >> .env.prod
           echo "APP_FOLDER=${{ secrets.APP_FOLDER }}" >> .env.prod
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env.prod
-          
+
           echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env.prod.db
           echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env.prod.db
           echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env.prod.db

@@ -37,6 +37,12 @@ jobs:
           echo "DATABASE=${{ secrets.DATABASE }}" >> .env.prod
           echo "APP_FOLDER=${{ secrets.APP_FOLDER }}" >> .env.prod
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env.prod
+          
+          echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env.prod.db
+          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env.prod.db
+          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env.prod.db
+          echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env.prod.db
+          echo "MYSQL_PORT=${{ secrets.MYSQL_PORT }}" >> .env.prod.db
 
       - name: Build the Docker Compose stack
         run: docker-compose -f docker-compose.prod.yml up --build -d

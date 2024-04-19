@@ -9,16 +9,19 @@ from project.models import (User, Profile, Genre, Book, BookCopy,
 )
 
 class UserModelTestCase(unittest.TestCase):
+    # Set up the environment before each test method is executed
     def setUp(self):
         self.app = app.test_client()
         with app.app_context():
             db.create_all()
 
+# Clean up the environment after each test method has been executed
     def tearDown(self):
         with app.app_context():
             db.session.remove()
             db.drop_all()
 
+# Test case for user creation
     def test_user_creation(self):
         with app.app_context():
             user = User(email='test@example.com', first_name='Test', last_name='User', password='password')
